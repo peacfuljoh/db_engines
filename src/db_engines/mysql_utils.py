@@ -87,6 +87,8 @@ def insert_records_from_dict(database: str,
     engine = MySQLEngine(db_config)
     engine.insert_records_to_table(database, query, records)
 
+    a = 5
+
 
 def update_records_from_dict(database: str,
                              tablename: str,

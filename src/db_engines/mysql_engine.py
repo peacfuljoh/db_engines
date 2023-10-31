@@ -11,6 +11,8 @@ import pandas as pd
 from .constants import MYSQL_FETCH_MANY_MAX_COUNT
 
 
+
+
 class MySQLEngine():
     """MySQL convenience class for CRUD and other operations on database records."""
     def __init__(self, db_config: Dict[str, str]):
@@ -51,16 +53,6 @@ class MySQLEngine():
             print(e)
 
 
-    ### pure SQL ###
-    def execute_pure_sql(self,
-                         database: str,
-                         query: str):
-        def func(connection, cursor):
-            cursor.execute(query)
-            connection.commit()
-        self._sql_query_wrapper(func, database=database)
-
-
     ### get database and table info ###
     def get_db_names(self) -> List[str]:
         """Get all names of existing databases"""
@@ -78,6 +70,19 @@ class MySQLEngine():
             cursor.execute(f"DESCRIBE {tablename}")
             return cursor.fetchall()
         return self._sql_query_wrapper(func, database=database)
+
+
+
+    ### pure SQL ###
+    def execute_pure_sql(self,
+                         database: str,
+                         query: str):
+        def func(connection, cursor):
+            cursor.execute(query)
+            connection.commit()
+
+        self._sql_query_wrapper(func, database=database)
+
 
 
     ### operations on databases ###
