@@ -1,0 +1,4 @@
+"""Macros for the DB engines"""
+
+MYSQL_FETCH_MANY_MAX_COUNT = 1000
+MONGODB_FIND_MANY_MAX_COUNT = 1000
