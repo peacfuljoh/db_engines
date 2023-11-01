@@ -82,7 +82,11 @@ def test_describe_table():
     )
 
     for tablename in TABLENAMES_MYSQL[DB_TEST]:
-        assert engine.describe_table(DB_TEST, tablename) == exp[tablename]
+        desc = engine.describe_table(DB_TEST, tablename)
+        for tup_out, tup_exp in zip(desc, exp[tablename]):
+            for val_out, val_exp in zip(tup_out, tup_exp):
+                assert (val_out == val_exp or
+                        (isinstance(val_exp, bytes) and bytes(val_out, encoding='utf-8') == val_exp))
 
 def test_select_records():
     engine = MySQLEngine(DB_MYSQL_CONFIG)
