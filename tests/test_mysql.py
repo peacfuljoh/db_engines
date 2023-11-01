@@ -9,8 +9,8 @@ import pandas as pd
 from src.db_engines.mysql_engine import MySQLEngine
 from src.db_engines.mysql_utils import (get_table_colnames, get_table_primary_keys, insert_records_from_dict,
                                         update_records_from_dict)
-from utils_tests import (DB_MYSQL_CONFIG, DATABASES_MYSQL, TABLENAMES_MYSQL, SCHEMA_SQL_FNAME,
-                         CMDS_INSERT_MYSQL, DATA_INSERT_MYSQL, TABLE_COLS_MYSQL, TABLE_COLS_PRI_MYSQL)
+from constants_tests import (DB_MYSQL_CONFIG, DATABASES_MYSQL, TABLENAMES_MYSQL, SCHEMA_SQL_FNAME,
+                             CMDS_INSERT_MYSQL, DATA_INSERT_MYSQL, TABLE_COLS_MYSQL, TABLE_COLS_PRI_MYSQL)
 
 
 DB_TEST = DATABASES_MYSQL['test']

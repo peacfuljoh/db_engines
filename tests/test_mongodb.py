@@ -7,7 +7,7 @@ import pandas as pd
 from src.db_engines.mongodb_engine import MongoDBEngine
 from src.db_engines.mongodb_utils import get_mongodb_records_gen, load_all_recs_with_distinct
 from src.db_engines.constants import MONGODB_FIND_MANY_MAX_COUNT
-from utils_tests import DB_MONGO_CONFIG, DATABASES_MONGODB, COLLECTIONS_MONGODB
+from constants_tests import DB_MONGO_CONFIG, DATABASES_MONGODB, COLLECTIONS_MONGODB
 
 from ytpa_utils.val_utils import is_subset
 

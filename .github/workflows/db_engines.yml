@@ -25,6 +25,10 @@ jobs:
           auto-activate-base: false
       - name: Start MySQL
         run: sudo /etc/init.d/mysql start
+      - name: Start MongoDB
+        uses: supercharge/mongodb-github-action@1.10.0
+        with:
+          mongodb-version: 7.0.1
       - name: run tests
         run: make test-gha
         env:
