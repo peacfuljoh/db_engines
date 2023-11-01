@@ -1,6 +1,6 @@
 """Utils that use the MongoDB engine."""
 
-from typing import Optional, Generator
+from typing import Optional, Generator, Tuple
 
 import pandas as pd
 from ytpa_utils.val_utils import is_list_of_instances
@@ -53,7 +53,7 @@ def get_mongodb_records_gen(database: str,
                 elif is_list_of_instances(val, (str, int)): # set membership
                     filter_for_req[key] = {'$in': val}
                 elif isinstance(val, dict): # MongoDB-formatted
-                    assert all(['$' in key for key in val])
+                    assert all(['$' in key_ for key_ in val])
                     filter_for_req[key] = val
                 else:
                     raise NotImplementedError(f"Filter type not yet implemented: {key}: {val}.")

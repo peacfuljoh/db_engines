@@ -31,6 +31,8 @@ class MongoDBEngine():
 
         self._db_client = MongoClient(self._db_config['host'], self._db_config['port'])
 
+        self._cursor = None # to ensure that client stays open in generators
+
     def __del__(self):
         self._db_client.close()
 
@@ -221,10 +223,10 @@ class MongoDBEngine():
         def func():
             cn = self._get_collection()
             if projection is None:
-                cursor = cn.find(filter)
+                self._cursor = cn.find(filter)
             else:
-                cursor = cn.find(filter, projection)
-            return df_generator(cursor)
+                self._cursor = cn.find(filter, projection)
+            return self._df_generator()
 
         return self._query_wrapper(func)
 
@@ -241,8 +243,8 @@ class MongoDBEngine():
                 pipeline += [filter]
             pipeline += [{"$group": group}]
 
-            cursor = cn.aggregate(pipeline)
-            return df_generator(cursor)
+            self._cursor = cn.aggregate(pipeline)
+            return self._df_generator()
 
         return self._query_wrapper(func)
 
@@ -282,17 +284,24 @@ class MongoDBEngine():
         return self._query_wrapper(func)
 
 
-""" Helper methods """
-def df_generator(cursor: Cursor) -> Generator[pd.DataFrame, None, None]:
-    """Generator of DataFrames from records produced by iterating on a PyMongo cursor"""
-    while 1:
-        recs: List[dict] = []
-        for _ in range(MONGODB_FIND_MANY_MAX_COUNT):
-            rec_ = next(cursor, None)
-            if rec_ is None:
-                break
-            recs.append(rec_)
-        if recs:
-            yield pd.DataFrame(recs)
-        else:
-            return
+    ## Helper methods ##
+    def _df_generator(self) -> Generator[pd.DataFrame, None, None]:
+        """
+        Generator of DataFrames from records produced by iterating on a PyMongo cursor.
+
+        Note: this method MUST be a member of the engine class. Otherwise an instance of the engine used as a generator
+        may be garbage-collected before the generator can be used, causing a "cannot use client after closing" error.
+        """
+        while 1:
+            recs: List[dict] = []
+            for _ in range(MONGODB_FIND_MANY_MAX_COUNT):
+                rec_ = next(self._cursor, None)
+                if rec_ is None:
+                    break
+                recs.append(rec_)
+            if recs:
+                yield pd.DataFrame(recs)
+            else:
+                return
+
+
