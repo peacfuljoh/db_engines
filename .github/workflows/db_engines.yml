@@ -15,21 +15,21 @@ jobs:
       - run: cd /home/runner/work/db_engines/db_engines
       - name: setup env vars
         run: make build-gha
-#      - name: setup conda env
-#        uses: conda-incubator/setup-miniconda@v2
-#        with:
-#          activate-environment: db_engines
-#          environment-file: environment.yml
-#          auto-activate-base: false
+      - name: setup conda env
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          activate-environment: db_engines
+          environment-file: environment.yml
+          auto-activate-base: false
       - name: Start MySQL
         run: | 
           sudo /etc/init.d/mysql start
-          mysql -e "CREATE DATABASE IF NOT EXISTS test123;" -u$MYSQL_USERNAME -p$MYSQL_PASSWORD
-#      - name: run tests
-#        run: make test-gha
-#        env:
-#          PYTHONPATH: ${{ env.PYTHONPATH }}
-#      - name: publish to PyPI
-#        run: make publish
-#        env:
-#          PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+#          mysql -e "CREATE DATABASE IF NOT EXISTS test123;" -u$MYSQL_USERNAME -p$MYSQL_PASSWORD
+      - name: run tests
+        run: make test-gha
+        env:
+          PYTHONPATH: ${{ env.PYTHONPATH }}
+      - name: publish to PyPI
+        run: make publish
+        env:
+          PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
