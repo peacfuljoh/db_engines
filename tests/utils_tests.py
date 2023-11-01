@@ -14,6 +14,8 @@ try: # local
     # config info
     DB_MYSQL_CONFIG = config['DB_CONFIG']
     DB_MONGO_CONFIG = config['DB_MONGO_CONFIG']
+
+    # MongoDB
 except: # CI/CD
     # MySQL
     DB_MYSQL_CONFIG = dict(
@@ -22,6 +24,11 @@ except: # CI/CD
         password=os.environ['MYSQL_PASSWORD']
     )
 
+    # MongoDB
+    DB_MONGO_CONFIG = dict(
+        host=os.environ['MONGODB_HOST'],
+        port=os.environ['MONGODB_PORT']
+    )
 
 
 """MySQL"""
@@ -79,3 +86,18 @@ TABLE_COLS_PRI_MYSQL = dict(
 
 
 """MongoDB"""
+DATABASES_MONGODB = dict(
+    test1='test852943',
+    test2='test754637'
+)
+
+COLLECTIONS_MONGODB = {
+    DATABASES_MONGODB['test1']: dict(
+        test11='test_collection11',
+        test12='test_collection12'
+    ),
+    DATABASES_MONGODB['test2']: dict(
+        test21='test_collection21',
+        test22='test_collection22'
+    ),
+}

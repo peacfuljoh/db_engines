@@ -8,6 +8,8 @@ jobs:
     env:
       MYSQL_USERNAME: root
       MYSQL_PASSWORD: root
+      MONGODB_HOST: localhost
+      MONGODB_PORT: 27017
 
     steps:
       - name: checkout code
@@ -22,9 +24,7 @@ jobs:
           environment-file: environment.yml
           auto-activate-base: false
       - name: Start MySQL
-        run: | 
-          sudo /etc/init.d/mysql start
-#          mysql -e "CREATE DATABASE IF NOT EXISTS test123;" -u$MYSQL_USERNAME -p$MYSQL_PASSWORD
+        run: sudo /etc/init.d/mysql start
       - name: run tests
         run: make test-gha
         env:

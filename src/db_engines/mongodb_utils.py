@@ -3,7 +3,7 @@
 from typing import Optional, Generator
 
 import pandas as pd
-from ytpa_utils.val_utils import is_list_of_strings
+from ytpa_utils.val_utils import is_list_of_instances
 
 from .mongodb_engine import MongoDBEngine
 
@@ -16,8 +16,22 @@ def get_mongodb_records_gen(database: str,
                             distinct: Optional[dict] = None) \
         -> Generator[pd.DataFrame, None, None]:
     """
-    Prepare MongoDB feature generator with extract configuration.
-    Provide (filter and/or projection) or distinct, or neither, but not both. Specifying both will raise an error.
+    Prepare MongoDB feature generator with some options. See find_distinct_gen() and find_many_gen() for the format of
+    the provided options.
+
+    Provide (filter and/or projection) or distinct, but not both. Ex:
+        - provide filter
+        - provide projection
+        - provide filter and projection
+        - provide distinct
+
+    If using 'distinct' input arg, filter is specified through the distinct dict:
+        e.g. distinct = dict(group=<str>, filter=<dict>)
+
+    Filter options:
+        - equality: filter = dict(a='5')
+        - set membership: filter = dict(b=[1, 2, 3])
+        - MongoDB-formatted: filter = {'$gt': 50}
     """
     using_filt = filter is not None
     using_proj = projection is not None
@@ -26,21 +40,27 @@ def get_mongodb_records_gen(database: str,
     assert not (using_filt_or_proj and using_dist) # using one or the other, but not both
 
     engine = MongoDBEngine(db_config, database=database, collection=collection)
-    if distinct is not None:
+
+    if using_dist:
         assert 'group' in distinct
         return engine.find_distinct_gen(distinct['group'], filter=distinct.get('filter'))
-    else:
+    elif using_filt_or_proj:
         filter_for_req: dict = {}
         if filter:
             for key, val in filter.items():
-                if isinstance(val, str):
+                if isinstance(val, str): # equality
                     filter_for_req[key] = val
-                elif is_list_of_strings(val):
+                elif is_list_of_instances(val, (str, int)): # set membership
                     filter_for_req[key] = {'$in': val}
+                elif isinstance(val, dict): # MongoDB-formatted
+                    assert all(['$' in key for key in val])
+                    filter_for_req[key] = val
                 else:
                     raise NotImplementedError(f"Filter type not yet implemented: {key}: {val}.")
 
         return engine.find_many_gen(filter_for_req, projection=projection)
+    else:
+        raise NotImplementedError('You must provide at least one of the options (filter, projection, distinct).')
 
 
 def load_all_recs_with_distinct(database: str,

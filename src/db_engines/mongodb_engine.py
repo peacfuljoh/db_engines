@@ -6,8 +6,10 @@ import math
 import pandas as pd
 
 from pymongo import MongoClient
-from pymongo.collection import Collection, ObjectId
+from pymongo.collection import Collection, ObjectId, Cursor
 from pymongo.errors import BulkWriteError
+
+from ytpa_utils.val_utils import is_list_of_instances
 
 from .constants import MONGODB_FIND_MANY_MAX_COUNT
 
@@ -40,6 +42,10 @@ class MongoDBEngine():
             self._database = database
         if collection is not None:
             self._collection = collection
+
+    def get_db_info(self):
+        """Get currently targeted database and collection"""
+        return self._database, self._collection
 
 
     ### connection config ###
@@ -77,10 +83,8 @@ class MongoDBEngine():
             return [str(id) for id in self._get_collection().distinct('_id')]
         except:
             # exception if distinct is too large
-            ids = []
             df_gen = self.find_many_gen(projection={'_id': 1})
-            while not (df_ := next(df_gen)).empty:
-                ids += list(df_['_id'])
+            ids = [str(id_) for df_ in df_gen for id_ in df_['_id']]
             return ids
 
     ## DB operations ##
@@ -167,16 +171,18 @@ class MongoDBEngine():
 
     def find_one(self,
                  filter: Optional[dict] = None,
-                 projection: Optional[dict] = None):
+                 projection: Optional[dict] = None) \
+            -> dict:
         """Same as self.find_many_gen() but for a single record."""
         if filter is None:
             filter = {}
-        if projection is None:
-            projection = {}
 
         def func():
             cn = self._get_collection()
-            cursor = cn.find(filter, projection, limit=1)
+            if projection is None:
+                cursor = cn.find(filter, limit=1)
+            else:
+                cursor = cn.find(filter, projection, limit=1)
             return next(cursor, None)
         return self._query_wrapper(func)
 
@@ -211,23 +217,14 @@ class MongoDBEngine():
         """
         if filter is None:
             filter = {}
-        if projection is None:
-            projection = {}
 
         def func():
             cn = self._get_collection()
-            cursor = cn.find(filter, projection)
-            while 1:
-                recs: List[dict] = []
-                for _ in range(MONGODB_FIND_MANY_MAX_COUNT):
-                    rec_ = next(cursor, None)
-                    if rec_ is None:
-                        break
-                    recs.append(rec_)
-                if recs:
-                    yield pd.DataFrame(recs)
-                else:
-                    return
+            if projection is None:
+                cursor = cn.find(filter)
+            else:
+                cursor = cn.find(filter, projection)
+            return df_generator(cursor)
 
         return self._query_wrapper(func)
 
@@ -245,18 +242,7 @@ class MongoDBEngine():
             pipeline += [{"$group": group}]
 
             cursor = cn.aggregate(pipeline)
-
-            while 1:
-                recs: List[dict] = []
-                for _ in range(MONGODB_FIND_MANY_MAX_COUNT):
-                    rec_ = next(cursor, None)
-                    if rec_ is None:
-                        break
-                    recs.append(rec_)
-                if recs:
-                    yield pd.DataFrame(recs)
-                else:
-                    return
+            return df_generator(cursor)
 
         return self._query_wrapper(func)
 
@@ -267,27 +253,26 @@ class MongoDBEngine():
         """
         Find all distinct values of a given field.
         Output is a generator of DataFrames that have one column whose label is the field input arg.
+
+        e.g. filter = {'$match': {<key1>: <one_val>, <key2>: {'$in': <list_of_vals>}}}
         """
+        assert filter is None or (len(filter) == 1 and '$match' in filter)
         def func():
             group = {"_id": "$" + field}
             for df in self.find_with_group_gen(group, filter=filter):
                 yield df.rename(columns={'_id': field})
         return self._query_wrapper(func)
 
-    def delete_many(self, ids: Optional[List[str]] = None):
+    def delete_many(self, ids: Union[List[str], dict]):
         """Delete records by id"""
-        assert isinstance(ids, list)
+        assert is_list_of_instances(ids, (str, ObjectId)) or ids == {}
         def func():
             cn = self._get_collection()
             filter = {"_id": {"$in": ids}} if isinstance(ids, list) else {}
-            # if isinstance(ids, list):
-            #     filter = {"_id": {"$in": ids}}
-            # else:
-            #     filter = {}
             cn.delete_many(filter)
         return self._query_wrapper(func)
 
-    def delete_all_records(self, confirm_delete: str):
+    def delete_all_records(self, confirm_delete: Optional[str] = None):
         """Delete all records in a collection"""
         if confirm_delete != 'yes':
             return
@@ -296,3 +281,18 @@ class MongoDBEngine():
             cn.delete_many({})
         return self._query_wrapper(func)
 
+
+""" Helper methods """
+def df_generator(cursor: Cursor) -> Generator[pd.DataFrame, None, None]:
+    """Generator of DataFrames from records produced by iterating on a PyMongo cursor"""
+    while 1:
+        recs: List[dict] = []
+        for _ in range(MONGODB_FIND_MANY_MAX_COUNT):
+            rec_ = next(cursor, None)
+            if rec_ is None:
+                break
+            recs.append(rec_)
+        if recs:
+            yield pd.DataFrame(recs)
+        else:
+            return
