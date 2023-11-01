@@ -27,9 +27,9 @@ class MongoDBEngine():
         self._collection = None
         self._verbose = verbose
 
-        self.set_db_info(database=database, collection=collection)
-
         self._db_client = MongoClient(self._db_config['host'], self._db_config['port'])
+
+        self.set_db_info(database=database, collection=collection)
 
         self._cursor = None # to ensure that client stays open in generators
 
@@ -41,8 +41,20 @@ class MongoDBEngine():
                     collection: Optional[str] = None):
         """Set database and collection to be used in db op calls"""
         if database is not None:
+            if database not in self.get_all_databases():
+                if self._verbose:
+                    print(f"MongoDBEngine.set_bg_info() -> Database {database} does not exist.")
             self._database = database
         if collection is not None:
+            try:
+                if collection not in self.get_all_collections(database=database):
+                    if self._verbose:
+                        print(f"MongoDBEngine.set_bg_info() -> Collection {collection} "
+                              f"does not exist in database {database}.")
+            except:
+                if self._verbose:
+                    print(f"MongoDBEngine.set_bg_info() -> Collection {collection} or database {database} "
+                          f"does not exist.")
             self._collection = collection
 
     def get_db_info(self):
