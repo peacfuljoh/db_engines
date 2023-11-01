@@ -72,7 +72,7 @@ def insert_records_from_dict(database: str,
 
     INSERT INTO table_name (column1, column2, column3, ...)
     VALUES (value1, value2, value3, ...)
-    ON DUPLICATE KEY UPDATE column1=value1, ...;
+    ON DUPLICATE KEY UPDATE <val_orig>=<val_orig>;
     """
     keys = prep_keys_for_insert_or_update(database, tablename, data, db_config, keys=keys)
 
@@ -87,7 +87,6 @@ def insert_records_from_dict(database: str,
     engine = MySQLEngine(db_config)
     engine.insert_records_to_table(database, query, records)
 
-    a = 5
 
 
 def update_records_from_dict(database: str,
