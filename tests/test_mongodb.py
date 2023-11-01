@@ -222,7 +222,8 @@ def test_mongodb_utils():
 
     """ get_mongodb_records_gen() """
     # only filter
-    df_gen = get_mongodb_records_gen(database, collection, DB_MONGO_CONFIG, filter={'number': [2, 3, 4]})
+    filter = {'number': [2, 3, 4]}
+    df_gen = get_mongodb_records_gen(database, collection, DB_MONGO_CONFIG, filter=filter)
     df = pd.concat([df_ for df_ in df_gen], ignore_index=True)
     d_exp = [d_ for d_ in data if d_['number'] in [2, 3, 4]]
     assert df_matches_with_dict(df, d_exp)
