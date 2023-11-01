@@ -3,10 +3,10 @@ import os
 import datetime
 
 
-"""MySQL info"""
-try:
+try: # local
     import json
 
+    # MySQL
     GLOBAL_CONFIG_PATH = '/home/nuc/crawler_config/config.json'
     with open(GLOBAL_CONFIG_PATH, 'r') as f:
         config = json.load(f)
@@ -14,13 +14,17 @@ try:
     # config info
     DB_MYSQL_CONFIG = config['DB_CONFIG']
     DB_MONGO_CONFIG = config['DB_MONGO_CONFIG']
-except:
+except: # CI/CD
+    # MySQL
     DB_MYSQL_CONFIG = dict(
         host="localhost",
         user=os.environ['MYSQL_USERNAME'],
         password=os.environ['MYSQL_PASSWORD']
     )
 
+
+
+"""MySQL"""
 DATABASES_MYSQL = dict(
     test='test852943'
 )
@@ -34,7 +38,6 @@ TABLENAMES_MYSQL = {
 }
 
 SCHEMA_SQL_FNAME = 'schema_test.sql'
-
 
 CMDS_INSERT_MYSQL = dict(
     usernames="""
@@ -73,3 +76,6 @@ TABLE_COLS_PRI_MYSQL = dict(
     stats=['id_meta', 'timestamp_stats']
 )
 
+
+
+"""MongoDB"""

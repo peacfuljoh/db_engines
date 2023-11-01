@@ -2,6 +2,7 @@
 
 from typing import List, Optional
 import datetime
+import os
 
 import pandas as pd
 
@@ -16,13 +17,16 @@ DB_TEST = DATABASES_MYSQL['test']
 
 
 
-""" Utils """
+""" Helper methods """
 def setup_test_db(engine: MySQLEngine,
                   inject_data: bool = False):
     """Create test database. Overwrite if it already exists."""
     if DB_TEST in engine.get_db_names():
         engine.drop_db(DB_TEST)
-    engine.create_db_from_sql_file(SCHEMA_SQL_FNAME)
+
+    schema_fname = SCHEMA_SQL_FNAME if os.path.exists(SCHEMA_SQL_FNAME) else os.path.join('tests', SCHEMA_SQL_FNAME)
+    assert os.path.exists(schema_fname)
+    engine.create_db_from_sql_file(schema_fname)
 
     if inject_data:
         for tablename, cmd in CMDS_INSERT_MYSQL.items():
@@ -160,6 +164,8 @@ def test_select_records_with_join():
     rec_ = convert_df_rec_to_list(df, cols=['id_meta', 'username', 'count_stats'])
 
     assert set(rec_) == set([('123', 'blah', 6532)])
+
+
 
 
 

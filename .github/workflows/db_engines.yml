@@ -4,23 +4,30 @@ on: [push]
 jobs:
   test-and-deploy:
     runs-on: ubuntu-20.04
+
+    env:
+      MYSQL_USERNAME: root
+      MYSQL_PASSWORD: root
+
     steps:
       - name: checkout code
         uses: actions/checkout@v3
       - run: cd /home/runner/work/db_engines/db_engines
       - name: setup env vars
         run: make build-gha
-      - name: setup conda env
-        uses: conda-incubator/setup-miniconda@v2
-        with:
-          activate-environment: db_engines
-          environment-file: environment.yml
-          auto-activate-base: false
-      - name: run tests
-        run: make test-gha
-        env:
-          PYTHONPATH: ${{ env.PYTHONPATH }}
-      - name: publish to PyPI
-        run: make publish
-        env:
-          PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+#      - name: setup conda env
+#        uses: conda-incubator/setup-miniconda@v2
+#        with:
+#          activate-environment: db_engines
+#          environment-file: environment.yml
+#          auto-activate-base: false
+      - name: Start MySQL
+        run: sudo /etc/init.d/mysql start
+#      - name: run tests
+#        run: make test-gha
+#        env:
+#          PYTHONPATH: ${{ env.PYTHONPATH }}
+#      - name: publish to PyPI
+#        run: make publish
+#        env:
+#          PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}

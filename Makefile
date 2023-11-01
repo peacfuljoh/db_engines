@@ -9,8 +9,8 @@ REPO_ROOT_GHA_ = /home/runner/work/$(REPO_NAME_)/$(REPO_NAME_)
 BB_ROOT_GHA_ = $(REPO_ROOT_GHA_)
 
 ACT_ENV = $(CONDA_ACTIVATE) $(REPO_NAME_)
-PYPI_PKG_VER_CMD = $$($(ACT_ENV) && poetry search db_engines | grep -E 'db_engines' | grep -oP '\(\K[^\)]+')
-LOCAL_PKG_VER_CMD = $$($(ACT_ENV) && poetry version | grep -Po '(?<=db_engines )[^;]+')
+PYPI_PKG_VER_CMD = $$($(ACT_ENV) && poetry search $(REPO_NAME_) | grep -E '$(REPO_NAME_)' | grep -oP '\(\K[^\)]+')
+LOCAL_PKG_VER_CMD = $$($(ACT_ENV) && poetry version | grep -Po '(?<=$(REPO_NAME_) )[^;]+')
 
 
 build:
