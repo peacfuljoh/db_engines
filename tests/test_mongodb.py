@@ -18,11 +18,7 @@ from ytpa_utils.val_utils import is_subset
 def reset_mongodb(engine: MongoDBEngine):
     for database in DATABASES_MONGODB.values():
         assert 'test' in database
-        for collection in COLLECTIONS_MONGODB[database].values():
-            assert collection in ['test_collection11', 'test_collection12', 'test_collection21', 'test_collection22']
-            engine.set_db_info(database=database, collection=collection)
-            assert engine.get_db_info() == (database, collection)
-            engine.delete_all_records('yes')
+        engine.delete_all_records_in_database(database)
 
 def make_data() -> Dict[str, Dict[str, List[dict]]]:
     # make unique records for all databases and collections

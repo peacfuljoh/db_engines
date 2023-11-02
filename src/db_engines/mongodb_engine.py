@@ -295,6 +295,17 @@ class MongoDBEngine():
             cn.delete_many({})
         return self._query_wrapper(func)
 
+    def delete_all_records_in_database(self, database: str):
+        """Delete all records in a specified database"""
+        def func():
+            for collection in self.get_all_collections(database=database)[database]:
+                self.set_db_info(database=database, collection=collection)
+                cn = self._get_collection()
+                assert cn.database.name == database
+                assert cn.name == collection
+                cn.delete_many({})
+        return self._query_wrapper(func)
+
 
     ## Helper methods ##
     def _df_generator(self) -> Generator[pd.DataFrame, None, None]:

@@ -8,7 +8,7 @@ try: # local
     GLOBAL_CONFIG_PATH = '/home/nuc/crawler_config/config.json'
     with open(GLOBAL_CONFIG_PATH, 'r') as f:
         config = json.load(f)
-    DB_MYSQL_CONFIG = config['DB_CONFIG']
+    DB_MYSQL_CONFIG = config['DB_MYSQL_CONFIG']
     DB_MONGO_CONFIG = config['DB_MONGO_CONFIG']
 except: # CI/CD
     DB_MYSQL_CONFIG = dict(
