@@ -41,7 +41,7 @@ def make_data() -> Dict[str, Dict[str, List[dict]]]:
     return data
 
 def setup_db_and_insert_records() -> Tuple[MongoDBEngine, List[dict]]:
-    engine = MongoDBEngine(DB_MONGO_CONFIG)
+    engine = MongoDBEngine(DB_MONGO_CONFIG, verbose=True)
     reset_mongodb(engine)
 
     database = list(DATABASES_MONGODB.values())[0]
@@ -66,24 +66,24 @@ def df_matches_with_dict(df: pd.DataFrame,
 
 """ Tests """
 def test_mongodb_engine_setup():
-    engine = MongoDBEngine(DB_MONGO_CONFIG)
+    engine = MongoDBEngine(DB_MONGO_CONFIG, verbose=True)
     assert DB_MONGO_CONFIG == engine.get_db_config()
 
     database = DATABASES_MONGODB['test1']
     collection = COLLECTIONS_MONGODB[database]['test11']
 
     # get_db_info()
-    engine = MongoDBEngine(DB_MONGO_CONFIG, database=database)
+    engine = MongoDBEngine(DB_MONGO_CONFIG, database=database, verbose=True)
     assert engine.get_db_info()[0] == database
 
-    engine = MongoDBEngine(DB_MONGO_CONFIG, database=database, collection=collection)
+    engine = MongoDBEngine(DB_MONGO_CONFIG, database=database, collection=collection, verbose=True)
     assert engine.get_db_info() == (database, collection)
 
     engine.set_db_info('1', '2')
     assert engine.get_db_info() == ('1', '2')
 
 def test_creation_and_insert_one_and_find_one_ops():
-    engine = MongoDBEngine(DB_MONGO_CONFIG)
+    engine = MongoDBEngine(DB_MONGO_CONFIG, verbose=True)
     reset_mongodb(engine)
 
     # insert records (implicitly creates databases and collections)

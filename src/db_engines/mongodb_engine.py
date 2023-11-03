@@ -47,7 +47,8 @@ class MongoDBEngine():
             self._database = database
         if collection is not None:
             try:
-                if collection not in self.get_all_collections(database=database):
+                collections = [cn for cns in self.get_all_collections(database=database).values() for cn in cns]
+                if collection not in collections:
                     if self._verbose:
                         print(f"MongoDBEngine.set_bg_info() -> Collection {collection} "
                               f"does not exist in database {database}.")
