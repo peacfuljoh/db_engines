@@ -261,6 +261,13 @@ class MongoDBEngine():
 
         return self._query_wrapper(func)
 
+    def find_many(self,
+                  filter: Optional[dict] = None,
+                  projection: Optional[dict] = None) \
+            -> pd.DataFrame:
+        """Batch version of find_many_gen. Careful with size of returned dataframe."""
+        return pd.concat([df for df in self.find_many_gen(filter=filter, projection=projection)], ignore_index=True)
+
     def find_distinct_gen(self,
                           field: str,
                           filter: Optional[dict] = None) \
