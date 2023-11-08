@@ -230,6 +230,12 @@ def test_mongodb_utils():
     d_exp = [d_ for d_ in data if d_['number'] in [2, 3, 4] and d_['text_nonunique'] == '0']
     assert df_matches_with_dict(df, d_exp)
 
+    filter = {'number': [[2, 4]]}
+    df_gen = get_mongodb_records_gen(database, collection, DB_MONGO_CONFIG, filter=filter)
+    df = pd.concat([df_ for df_ in df_gen], ignore_index=True)
+    d_exp = [d_ for d_ in data if 2 <= d_['number'] <= 4]
+    assert df_matches_with_dict(df, d_exp)
+
     # only projection
     projection = {'_id': 0, 'text': 1}
     df_gen = get_mongodb_records_gen(database, collection, DB_MONGO_CONFIG, projection=projection)

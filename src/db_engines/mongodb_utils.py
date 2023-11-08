@@ -52,6 +52,8 @@ def get_mongodb_records_gen(database: str,
                     filter_for_req[key] = val
                 elif is_list_of_instances(val, (str, int)): # set membership
                     filter_for_req[key] = {'$in': val}
+                elif is_list_of_instances(val, list) and len(val) == 1 and len(val[0]) == 2: # a single range
+                    filter_for_req[key] = {'$gte': val[0][0], '$lte': val[0][1]}
                 elif isinstance(val, dict): # MongoDB-formatted
                     assert all(['$' in key_ for key_ in val])
                     filter_for_req[key] = val

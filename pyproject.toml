@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "db-engines"
-version = "0.1.9"
+version = "0.1.10"
 description = "Classes and utils for use with common database tools (e.g. MySQL, MongoDB)."
 authors = ["Johannes Traa"]
 license = "MIT"
