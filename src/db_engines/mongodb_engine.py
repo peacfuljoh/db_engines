@@ -63,12 +63,10 @@ class MongoDBEngine():
         return self._database, self._collection
 
 
-    ### connection config ###
+    ### connection ###
     def get_db_config(self) -> Dict[str, str]:
         return self._db_config
 
-
-    ## connection and exception handling ###
     def _query_wrapper(self, func: Callable):
         """Wrapper for exception handling during MongoDB queries"""
         try:

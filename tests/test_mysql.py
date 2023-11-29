@@ -3,18 +3,20 @@
 from typing import List, Optional
 import datetime
 import os
+import pathlib
 
 import pandas as pd
 
 from src.db_engines.mysql_engine import MySQLEngine
 from src.db_engines.mysql_utils import (get_table_colnames, get_table_primary_keys, insert_records_from_dict,
                                         update_records_from_dict)
-from constants_tests import (DB_MYSQL_CONFIG, DATABASES_MYSQL, TABLENAMES_MYSQL, SCHEMA_SQL_FNAME,
-                             CMDS_INSERT_MYSQL, DATA_INSERT_MYSQL, TABLE_COLS_MYSQL, TABLE_COLS_PRI_MYSQL)
+from tests.constants_tests import (DB_MYSQL_CONFIG, DATABASES_MYSQL, TABLENAMES_MYSQL, SCHEMA_SQL_FNAME,
+                                   CMDS_INSERT_MYSQL, DATA_INSERT_MYSQL, TABLE_COLS_MYSQL, TABLE_COLS_PRI_MYSQL)
 
 
 DB_TEST = DATABASES_MYSQL['test']
 
+TESTS_DPATH = pathlib.Path(__file__).parent.resolve() # get this file's parent directory path
 
 
 """ Helper methods """
@@ -24,7 +26,8 @@ def setup_test_db(engine: MySQLEngine,
     if DB_TEST in engine.get_db_names():
         engine.drop_db(DB_TEST)
 
-    schema_fname = SCHEMA_SQL_FNAME if os.path.exists(SCHEMA_SQL_FNAME) else os.path.join('tests', SCHEMA_SQL_FNAME)
+    schema_fname = os.path.join(TESTS_DPATH, SCHEMA_SQL_FNAME)
+    # schema_fname = SCHEMA_SQL_FNAME if os.path.exists(SCHEMA_SQL_FNAME) else os.path.join('tests', SCHEMA_SQL_FNAME)
     assert os.path.exists(schema_fname)
     engine.create_db_from_sql_file(schema_fname)
 
