@@ -2,6 +2,7 @@ SHELL = /bin/bash
 CONDA_ACTIVATE = source $$(conda info --base)/etc/profile.d/conda.sh ; conda activate ; conda activate
 
 REPO_NAME_ = db_engines
+PYPI_NAME_ = db-engines
 
 REPO_ROOT_ = /home/nuc/$(REPO_NAME_)
 BB_ROOT_ = $(REPO_ROOT_)
@@ -9,8 +10,8 @@ REPO_ROOT_GHA_ = /home/runner/work/$(REPO_NAME_)/$(REPO_NAME_)
 BB_ROOT_GHA_ = $(REPO_ROOT_GHA_)
 
 ACT_ENV = $(CONDA_ACTIVATE) $(REPO_NAME_)
-PYPI_PKG_VER_CMD = $$($(ACT_ENV) && poetry search $(REPO_NAME_) | grep -E '$(REPO_NAME_)' | grep -oP '\(\K[^\)]+')
-LOCAL_PKG_VER_CMD = $$($(ACT_ENV) && poetry version | grep -Po '(?<=$(REPO_NAME_) )[^;]+')
+PYPI_PKG_VER_CMD = $$($(ACT_ENV) && poetry search $(REPO_NAME_) | grep -E '$(PYPI_NAME_)' | grep -Eo '[0-9]\.[0-9]\.[0-9]+')
+LOCAL_PKG_VER_CMD = $$($(ACT_ENV) && poetry version --short)
 
 
 build:
